@@ -39,32 +39,44 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-    <div class="w-full min-h-screen p-6 bg-soft text-main flex justify-center items-start">
-      <div class="flex flex-col lg:flex-row gap-6 w-full max-w-[90rem]">
+    <div class="w-full h-full p-6 bg-soft text-main flex justify-center items-center  fade-in">
+
+      <div class="flex flex-col lg:flex-row gap-6 w-full max-w-[90rem] h-[90vh]">
         <!-- Form -->
-        <div class="bg-panel text-main p-6 rounded-xl flex-1 border border-accent shadow-md min-h-[32rem]">
-          <h2 class="text-2xl font-bold mb-4 text-accent">📤 Envoyer un mème</h2>
-          <form class="space-y-4" @submit.prevent="handleSubmit">
-            <input type="file" @change="handleFileChange" class="w-full p-2 bg-soft text-main rounded" />
-            <input v-model="username" placeholder="Ton prénom" class="w-full p-2 bg-soft text-main rounded" />
-            <input v-model="avatar" placeholder="Lien avatar (optionnel)" class="w-full p-2 bg-soft text-main rounded" />
+        <div class="bg-panel text-main p-6 rounded-xl flex-1 border border-accent shadow-md flex flex-col justify-between">
+          <div>
+            <h2 class="text-2xl font-bold mb-4 text-accent">📤 Envoyer un mème</h2>
+            <form class="space-y-4" @submit.prevent="handleSubmit">
+              <input type="file" @change="handleFileChange" class="w-full p-2 bg-soft text-main rounded" />
+              <input v-model="username" placeholder="Ton prénom" class="w-full p-2 bg-soft text-main rounded" />
+              <input v-model="avatar" placeholder="Lien avatar (optionnel)" class="w-full p-2 bg-soft text-main rounded" />
   
-            <label class="text-sm block">Taille d'affichage : {{ size }}%</label>
-            <input type="range" min="10" max="100" v-model="size" class="w-full accent-[--color-primary]" />
+              <label class="text-sm block">Taille d'affichage : {{ size }}%</label>
+              <input type="range" min="10" max="100" v-model="size" class="w-full accent-[--color-primary]" />
+            </form>
+          </div>
   
-            <button type="submit" class="w-full p-3 btn-primary font-bold rounded transition">
-              🚀 Envoyer au stream
-            </button>
-          </form>
+          <button @click="handleSubmit" class="mt-6 w-full p-3 btn-primary font-bold rounded transition">
+            🚀 Envoyer au stream
+          </button>
         </div>
   
         <!-- Preview -->
-        <div class="bg-panel text-main p-6 rounded-xl flex-1 border border-accent shadow-md min-h-[32rem]">
+        <div class="bg-panel text-main p-6 rounded-xl flex-1 border border-accent shadow-md flex flex-col">
           <h2 class="text-2xl font-bold mb-4 text-accent">👀 Aperçu</h2>
-          <div class="bg-soft rounded p-4 h-full text-center flex flex-col justify-center">
+          <div class="bg-soft rounded p-4 flex-1 overflow-hidden flex items-center justify-center">
             <template v-if="previewUrl">
-              <video v-if="file?.type.startsWith('video')" :src="previewUrl" controls class="rounded max-h-64 mx-auto" />
-              <img v-else :src="previewUrl" class="rounded max-h-64 mx-auto" />
+              <video
+                v-if="file?.type.startsWith('video')"
+                :src="previewUrl"
+                controls
+                class="rounded max-h-full max-w-full object-contain"
+              />
+              <img
+                v-else
+                :src="previewUrl"
+                class="rounded max-h-full max-w-full object-contain"
+              />
             </template>
             <template v-else>
               <p class="italic text-sm text-accent">Aucun mème sélectionné</p>
@@ -74,4 +86,5 @@ const handleSubmit = async () => {
       </div>
     </div>
   </template>
+  
   
