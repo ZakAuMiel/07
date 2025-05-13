@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #1e1e2f;
+  --color-panel: #2a2a40;
+  --color-primary: #ff5f7e;
+  --color-accent: #ffd6e0;
+  --color-text: #f4f4f5;
+}
+
+@layer utilities {
+  .bg-soft {
+    background-color: var(--color-bg);
+  }
+
+  .bg-panel {
+    background-color: var(--color-panel);
+  }
+
+  .text-main {
+    color: var(--color-text);
+  }
+
+  .text-accent {
+    color: var(--color-accent);
+  }
+
+  .btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+  }
+
+  .btn-primary:hover {
+    background-color: #ff7a95;
+  }
+
+  .border-accent {
+    border-color: var(--color-accent);
+  }
+}

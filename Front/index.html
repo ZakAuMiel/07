@@ -1,50 +1,13 @@
-<!DOCTYPE html>
-<html lang="fr">
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Test Upload 07</title>
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + Vue + TS</title>
   </head>
-  <body style="font-family: sans-serif; padding: 2rem">
-    <h1>Test Upload vers 07</h1>
-    <form id="uploadForm" enctype="multipart/form-data">
-      <label>
-        Fichier (image/vidéo/gif) :
-        <input type="file" name="media" required />
-      </label>
-      <br /><br />
-      <label>
-        Prénom (optionnel) :
-        <input type="text" name="username" placeholder="Zak" />
-      </label>
-      <br /><br />
-      <label>
-        URL de l'avatar (optionnel) :
-        <input type="text" name="avatar" placeholder="https://..." />
-      </label>
-      <br /><br />
-      <label>
-        Taille sur l’écran (%) :
-        <input type="number" name="size" value="30" />
-      </label>
-      <br /><br />
-      <button type="submit">Envoyer</button>
-    </form>
-
-    <script>
-      const form = document.getElementById("uploadForm");
-
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const formData = new FormData(form);
-        const res = await fetch("http://localhost:3001/send", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await res.json();
-        alert(data.status === "ok" ? "Envoyé avec succès !" : "Erreur :(");
-      });
-    </script>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
