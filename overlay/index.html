@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Overlay 07</title>
+  <style>
+    body {
+      margin: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+    #wrapper {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .media-container {
+      position: relative;
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .info {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: sans-serif;
+    }
+    .info img {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <div class="media-container" id="mediaContainer"></div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const socket = io("http://localhost:3001");
+    const container = document.getElementById('mediaContainer');
+
+    socket.on("new-media", ({ url, type, username, avatar, size }) => {
+      container.innerHTML = ''; // Clear previous
+
+      const wrapper = document.createElement(type === 'video' ? 'video' : 'img');
+      wrapper.style.maxWidth = size + '%';
+      wrapper.style.maxHeight = size + '%';
+      wrapper.style.display = 'block';
+      wrapper.style.margin = 'auto';
+
+      if (type === 'video') {
+        wrapper.src = url;
+        wrapper.autoplay = true;
+        wrapper.controls = false;
+        wrapper.muted = false;
+        wrapper.playsInline = true;
+        wrapper.onended = () => container.innerHTML = '';
+      } else {
+        wrapper.src = url;
+        setTimeout(() => container.innerHTML = '', 5000); // cache image après 5s // ajouter un timeout dans le frontend 
+      }
+
+      const info = document.createElement('div');
+      info.className = 'info';
+
+      if (avatar) {
+        const img = document.createElement('img');
+        img.src = avatar;
+        info.appendChild(img);
+      }
+
+      const name = document.createElement('span');
+      name.textContent = username || '???';
+      info.appendChild(name);
+
+      const wrapperDiv = document.createElement('div');
+      wrapperDiv.appendChild(wrapper);
+      wrapperDiv.appendChild(info);
+
+      container.appendChild(wrapperDiv);
+    });
+  </script>
+</body>
+</html>
