@@ -1,0 +1,1 @@
+module.exports = ['Zakaulait', 'NomAmi1', 'NomAmi2'];

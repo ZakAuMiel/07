@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Upload Média</title>
+    <style>
+      body {
+        background: #1c1a1a;
+        color: #f7e6e6;
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .card {
+        background: #2c1f1f;
+        padding: 2rem;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      }
+
+      h1 {
+        color: #dc5c5c;
+        text-align: center;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 1rem;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 0.5rem;
+        margin-top: 0.4rem;
+        border-radius: 8px;
+        border: 1px solid #3a2d2d;
+        background: #2a2323;
+        color: white;
+      }
+
+      .btn-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      button {
+        background: #dc5c5c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #b94444;
+      }
+
+      #shutdownBtn {
+        background: #555;
+      }
+
+      #shutdownBtn:hover {
+        background: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Uploader un média</h1>
+      <form id="uploadForm" enctype="multipart/form-data">
+        <label
+          >Pseudo :
+          <input type="text" name="username" value="Zakaulait" required />
+        </label>
+        <label
+          >URL avatar :
+          <input
+            type="text"
+            name="avatarUrl"
+            value="https://cdn.discordapp.com/embed/avatars/1.png"
+          />
+        </label>
+        <label
+          >Durée (secondes) :
+          <input type="number" name="duration" placeholder="5" min="1" />
+        </label>
+        <label
+          >Blague / message :
+          <textarea name="message" placeholder="Écris une blague..."></textarea>
+        </label>
+        <label
+          >Fichier image ou vidéo :
+          <input type="file" name="media" accept="image/*,video/*" required />
+        </label>
+
+        <div class="btn-row">
+          <button type="submit">Envoyer</button>
+          <button type="button" id="shutdownBtn">✖ Fermer overlay</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const form = document.getElementById("uploadForm");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const duration = form.elements["duration"].value.trim();
+
+        if (duration !== "") {
+          formData.set("duration", Number(duration) * 1000); // secondes → ms
+        }
+
+        try {
+          const res = await fetch("http://localhost:3000/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+          alert(res.ok ? "✅ Upload réussi !" : `❌ Erreur : ${data.message}`);
+        } catch (err) {
+          console.error(err);
+          alert("Erreur réseau");
+        }
+      });
+
+      document
+        .getElementById("shutdownBtn")
+        .addEventListener("click", async () => {
+          try {
+            const res = await fetch("http://localhost:3000/api/shutdown", {
+              method: "POST",
+            });
+            alert(res.ok ? "🛑 Overlay fermé !" : "❌ Impossible de fermer");
+          } catch (err) {
+            alert("Erreur de connexion");
+          }
+        });
+    </script>
+  </body>
+</html>

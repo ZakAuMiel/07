@@ -1,98 +1,171 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <title>Overlay 07</title>
-  <style>
-    body {
-      margin: 0;
-      background: transparent;
-      overflow: hidden;
-    }
-    #wrapper {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .media-container {
-      position: relative;
-      max-width: 100%;
-      max-height: 100%;
-    }
-    .info {
-      position: absolute;
-      bottom: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.6);
-      color: white;
-      padding: 5px 10px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: sans-serif;
-    }
-    .info img {
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      object-fit: cover;
-    }
-  </style>
-</head>
-<body>
-  <div id="wrapper">
-    <div class="media-container" id="mediaContainer"></div>
-  </div>
-
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script>
-    const socket = io("http://localhost:3001");
-    const container = document.getElementById('mediaContainer');
-
-    socket.on("new-media", ({ url, type, username, avatar, size }) => {
-      container.innerHTML = ''; // Clear previous
-
-      const wrapper = document.createElement(type === 'video' ? 'video' : 'img');
-      wrapper.style.maxWidth = size + '%';
-      wrapper.style.maxHeight = size + '%';
-      wrapper.style.display = 'block';
-      wrapper.style.margin = 'auto';
-
-      if (type === 'video') {
-        wrapper.src = url;
-        wrapper.autoplay = true;
-        wrapper.controls = false;
-        wrapper.muted = false;
-        wrapper.playsInline = true;
-        wrapper.onended = () => container.innerHTML = '';
-      } else {
-        wrapper.src = url;
-        setTimeout(() => container.innerHTML = '', 5000); // cache image après 5s // ajouter un timeout dans le frontend 
+  <head>
+    <meta charset="UTF-8" />
+    <title>Overlay</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
       }
 
-      const info = document.createElement('div');
-      info.className = 'info';
-
-      if (avatar) {
-        const img = document.createElement('img');
-        img.src = avatar;
-        info.appendChild(img);
+      #container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+        background: rgba(0, 0, 0, 0.85);
+        padding: 20px;
+        border-radius: 12px;
+        color: white;
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        max-width: 90vw;
       }
 
-      const name = document.createElement('span');
-      name.textContent = username || '???';
-      info.appendChild(name);
+      #user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-      const wrapperDiv = document.createElement('div');
-      wrapperDiv.appendChild(wrapper);
-      wrapperDiv.appendChild(info);
+      #avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 2px solid white;
+        object-fit: cover;
+      }
 
-      container.appendChild(wrapperDiv);
-    });
-  </script>
-</body>
+      #username {
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      video,
+      img {
+        max-width: 80vw;
+        max-height: 60vh;
+        border-radius: 10px;
+        background: black;
+      }
+
+      #message {
+        font-size: 1rem;
+        color: #f7e6e6;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container" style="display: none">
+      <div id="user-info">
+        <img id="avatar" src="" alt="avatar" />
+        <div id="username">Pseudo</div>
+      </div>
+      <div id="media-wrapper"></div>
+      <div id="message"></div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+      const socket = io("http://localhost:3000");
+
+      const container = document.getElementById("container");
+      const wrapper = document.getElementById("media-wrapper");
+      const usernameEl = document.getElementById("username");
+      const avatarEl = document.getElementById("avatar");
+      const messageEl = document.getElementById("message");
+
+      function resetOverlay() {
+        wrapper.innerHTML = "";
+        messageEl.textContent = "";
+        avatarEl.src = "";
+        usernameEl.textContent = "";
+        container.style.display = "none";
+      }
+
+      function hideOverlay() {
+        gsap.to(container, {
+          opacity: 0,
+          scale: 0.8,
+          duration: 0.5,
+          onComplete: resetOverlay,
+        });
+      }
+
+      socket.on("new-media", (data) => {
+        resetOverlay();
+
+        const duration =
+          !isNaN(Number(data.duration)) && Number(data.duration) > 0
+            ? Number(data.duration)
+            : data.type === "image"
+            ? 5000
+            : null; // fallback 5s image
+
+        usernameEl.textContent = data.username || "Anonyme";
+        avatarEl.src = data.avatarUrl || "";
+        messageEl.textContent = data.message || "";
+
+        const mediaUrl = `http://localhost:3000${data.url}`;
+        const media = document.createElement(
+          data.type === "video" ? "video" : "img"
+        );
+
+        if (data.type === "video") {
+          media.src = mediaUrl;
+          media.autoplay = true;
+          media.playsInline = true;
+          media.controls = false;
+          media.muted = false;
+        } else {
+          media.src = mediaUrl;
+        }
+
+        wrapper.appendChild(media);
+        container.style.display = "flex";
+
+        gsap.fromTo(
+          container,
+          { opacity: 0, scale: 0.8 },
+          { opacity: 1, scale: 1, duration: 0.5 }
+        );
+
+        if (duration) {
+          setTimeout(() => {
+            if (media.tagName === "VIDEO") {
+              media.pause();
+              media.removeAttribute("src");
+              media.load();
+            }
+            hideOverlay();
+          }, duration);
+        } else if (data.type === "video") {
+          media.onended = () => hideOverlay();
+        }
+      });
+
+      socket.on("shutdown-overlay", () => {
+        console.log("🔴 Shutdown overlay via WebSocket !");
+        const media = wrapper.querySelector("video");
+        if (media) {
+          media.pause();
+          media.removeAttribute("src");
+          media.load();
+        }
+        hideOverlay();
+      });
+    </script>
+  </body>
 </html>
