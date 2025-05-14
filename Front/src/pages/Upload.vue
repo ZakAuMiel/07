@@ -32,34 +32,44 @@ watch(externalUrl, (val) => {
 
 const handleSubmit = async () => {
   if (!file.value && !externalUrl.value.trim()) {
-    return alert("❌ Aucun fichier ni lien vidéo fourni");
+    return alert("❌ Aucun média fourni");
   }
 
   const formData = new FormData();
+
   if (file.value) formData.append("media", file.value);
-  if (externalUrl.value.trim())
+  if (externalUrl.value.trim()) {
     formData.append("externalUrl", externalUrl.value.trim());
+  }
+
   formData.append("username", username.value);
-  formData.append("avatar", avatar.value);
-  formData.append("size", size.value.toString());
-  formData.append("fullVideo", fullVideo.value.toString());
-  formData.append("duration", duration.value.toString());
-  formData.append("caption", caption.value);
+  formData.append("avatarUrl", avatar.value);                // 🔁 corrigé
+  formData.append("displaySize", size.value.toString());     // 🔁 corrigé
+  formData.append("message", caption.value);                 // 🔁 corrigé
+
+  if (!fullVideo.value) {
+    formData.append("duration", (duration.value * 1000).toString());
+  }
 
   try {
-    await fetch("http://localhost:3001/send", {
+    const res = await fetch("http://localhost:3000/api/upload", {
       method: "POST",
-      body: formData,
+      body: formData
     });
-    alert("✅ Mème envoyé au stream");
-    file.value = null;
-    previewUrl.value = "";
-    caption.value = "";
-    externalUrl.value = "";
-  } catch (e) {
-    alert("❌ Erreur lors de l'envoi");
+    const data = await res.json();
+    alert(res.ok ? "✅ Mème envoyé au stream" : `❌ Erreur : ${data.message}`);
+    if (res.ok) {
+      file.value = null;
+      previewUrl.value = "";
+      caption.value = "";
+      externalUrl.value = "";
+    }
+  } catch (err) {
+    console.error(err);
+    alert("❌ Erreur réseau");
   }
 };
+
 </script>
 
 <template>
