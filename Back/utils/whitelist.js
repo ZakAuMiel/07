@@ -47,4 +47,4 @@ function isAllowed(userId) {
   return ['ami', 'streamer'].includes(list[userId]);
 }
 
-module.exports = { setRole, getRole, isAllowed };
+module.exports = { setRole, getRole, isAllowed,remove, isAllowed };

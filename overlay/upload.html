@@ -70,34 +70,77 @@
       #shutdownBtn:hover {
         background: #777;
       }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        gap: 10px;
+      }
+
+      .user-info img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid #f7e6e6;
+      }
+
+      .user-info span {
+        font-weight: bold;
+      }
+
+      #discordStatus {
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+      }
     </style>
   </head>
   <body>
     <div class="card">
       <h1>Uploader un média</h1>
+
+      <div id="discordStatus"></div>
+
+      <div class="user-info" id="userInfo" style="display: none">
+        <img id="avatarPreview" src="" alt="Avatar" />
+        <span id="displayName">...</span>
+      </div>
+
       <form id="uploadForm" enctype="multipart/form-data">
-        <label
-          >Pseudo :
-          <input type="text" name="username" value="Zakaulait" required />
+        <label>
+          Pseudo :
+          <input
+            type="text"
+            name="username"
+            id="usernameField"
+            value="Zakaulait"
+            required
+          />
         </label>
-        <label
-          >URL avatar :
+
+        <label>
+          URL avatar :
           <input
             type="text"
             name="avatarUrl"
+            id="avatarField"
             value="https://cdn.discordapp.com/embed/avatars/1.png"
           />
         </label>
-        <label
-          >Durée (secondes) :
+
+        <label>
+          Durée (secondes) :
           <input type="number" name="duration" placeholder="5" min="1" />
         </label>
-        <label
-          >Blague / message :
+
+        <label>
+          Blague / message :
           <textarea name="message" placeholder="Écris une blague..."></textarea>
         </label>
-        <label
-          >Fichier image ou vidéo :
+
+        <label>
+          Fichier image ou vidéo :
           <input type="file" name="media" accept="image/*,video/*" required />
         </label>
 
@@ -109,6 +152,43 @@
     </div>
 
     <script>
+      const MODE_DEV = true;
+
+      const params = new URLSearchParams(window.location.search);
+      const user = params.get("user");
+      const id = params.get("id");
+      const avatar = params.get("avatar");
+
+      const userInfo = document.getElementById("userInfo");
+      const usernameField = document.getElementById("usernameField");
+      const avatarField = document.getElementById("avatarField");
+      const avatarPreview = document.getElementById("avatarPreview");
+      const displayName = document.getElementById("displayName");
+      const discordStatus = document.getElementById("discordStatus");
+
+      if (!MODE_DEV && (!user || !id)) {
+        discordStatus.innerHTML = "❌ Vous devez vous connecter via Discord.";
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 2500);
+      } else if (user && id) {
+        userInfo.style.display = "flex";
+        usernameField.value = user;
+        displayName.textContent = user;
+
+        const avatarURL = avatar
+          ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.png`
+          : `https://cdn.discordapp.com/embed/avatars/1.png`;
+
+        avatarField.value = avatarURL;
+        avatarPreview.src = avatarURL;
+
+        discordStatus.innerHTML = "🟢 Connecté via Discord";
+      } else {
+        discordStatus.innerHTML =
+          "🧪 Mode développeur (auth Discord désactivée)";
+      }
+
       const form = document.getElementById("uploadForm");
 
       form.addEventListener("submit", async (e) => {
@@ -117,7 +197,7 @@
         const duration = form.elements["duration"].value.trim();
 
         if (duration !== "") {
-          formData.set("duration", Number(duration) * 1000); // secondes → ms
+          formData.set("duration", Number(duration) * 1000); // sec → ms
         }
 
         try {

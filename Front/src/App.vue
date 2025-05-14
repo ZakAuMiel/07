@@ -1,9 +1,8 @@
-<script setup>
-import UploadDashboard from './components/UploadDashboard.vue'
+<script setup lang="ts">
 </script>
 
 <template>
   <div class="min-h-screen bg-soft text-main">
-    <UploadDashboard />
+    <router-view />
   </div>
 </template>
