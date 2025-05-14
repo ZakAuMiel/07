@@ -15,6 +15,10 @@ const io = new Server(server, {
   cors: { origin: '*' }
 });
 
+//connexion bot discord
+ const { startBot } = require('./services/discordBot');
+ startBot();
+
 // Permet à nos controllers d'y accéder
 app.set('io', io);
 
